@@ -70,6 +70,110 @@ app-graph-builder/
 - **tsconfig.node.json** - Node-specific TypeScript settings
 - **eslint.config.js** - Code quality rules
 
+## File Descriptions
+
+### Root Level Files
+
+#### `package.json`
+Contains project metadata, dependencies, and npm scripts. Defines the project name, version, and all required packages for both development and production environments.
+
+**Key sections:**
+- `scripts` - NPM commands for development, building, linting, and preview
+- `dependencies` - Production dependencies (React, React DOM)
+- `devDependencies` - Development tools (TypeScript, Vite, ESLint, PostCSS, Tailwind)
+
+#### `vite.config.ts`
+Vite configuration file that defines how the project is built and served during development. It specifies the React plugin for proper JSX handling and optimization settings.
+
+#### `tsconfig.json`
+Main TypeScript configuration file that sets compiler options for the entire project. Extends from base configuration with strict type checking enabled.
+
+#### `tsconfig.app.json`
+App-specific TypeScript configuration that extends the main tsconfig.json with settings optimized for application source files in the `src/` directory.
+
+#### `tsconfig.node.json`
+Node-specific TypeScript configuration for build tools and scripts that run in the Node.js environment.
+
+#### `eslint.config.js`
+ESLint configuration file that enforces code quality and consistency standards. Includes rules for React and React Hooks best practices.
+
+**Includes:**
+- JavaScript linting rules
+- React plugin rules
+- React Hooks exhaustive-deps rules
+- React Refresh rules for HMR support
+
+#### `tailwind.config.js`
+Tailwind CSS configuration file that customizes the styling framework. Defines content paths for Tailwind to scan and custom theme extensions.
+
+**Key settings:**
+- `content` - Paths where Tailwind looks for class names to include in the final build
+- `theme.extend.fontFamily` - Custom font configurations (Inter, system fonts, and monospace options)
+
+#### `.gitignore`
+Specifies files and folders that should not be committed to version control, including node modules, build outputs, and environment files.
+
+#### `index.html`
+Entry HTML file that serves as the template for the application. Contains the root div where React mounts the application.
+
+#### `postcss.config.js`
+PostCSS configuration file that enables Tailwind CSS and Autoprefixer for CSS processing during the build.
+
+### Source Files (`src/` Directory)
+
+#### `main.tsx`
+Application entry point that:
+- Imports React and ReactDOM
+- Imports global styles (index.css)
+- Renders the `<App />` component into the root element
+
+This file is executed first when the application starts.
+
+#### `App.tsx`
+Main React component that serves as the root of the application. Contains the primary structure and layout of the graph builder application.
+
+**Responsibilities:**
+- Defines the overall app structure
+- Manages top-level state and logic
+- Renders child components
+
+#### `index.css`
+Global stylesheet that applies to the entire application. Contains Tailwind CSS directives and global styling rules.
+
+**Key configurations:**
+- Tailwind base, components, and utilities imports
+- Dark theme body styling (`bg-[#09090b]` dark background, white text)
+- React Flow custom styling for handles and nodes
+- Anti-aliased text rendering
+- Overflow hidden to prevent scrollbars
+
+#### `App.css`
+Component-specific styles for the App component. Contains styling rules isolated to the App component and its children.
+
+#### `assets/` Directory
+Contains static assets such as images, icons, and other media files used throughout the application.
+
+### Public Directory
+
+#### `public/`
+Directory for static files that are served as-is without processing. Files here are not modified during the build process.
+
+## Styling & Theming
+
+This project uses **Tailwind CSS** for utility-first styling with a custom dark theme configuration:
+
+- **Dark background**: `#09090b` (nearly black)
+- **Text color**: White for high contrast
+- **Font**: Inter font family with system-ui fallback for optimal readability
+- **Responsive**: Fully responsive design using Tailwind's responsive utilities
+
+### Customizing Styles
+
+1. **Global styles**: Edit `src/index.css` for application-wide styling
+2. **Component styles**: Edit `src/App.css` for App component-specific styles
+3. **Tailwind config**: Modify `tailwind.config.js` to customize theme colors, fonts, and utilities
+4. **Tailwind classes**: Use utility classes directly in JSX elements following Tailwind conventions
+
 ## Available Scripts
 
 ### Development Server
