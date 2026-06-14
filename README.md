@@ -125,9 +125,11 @@ PostCSS configuration file that enables Tailwind CSS and Autoprefixer for CSS pr
 Application entry point that:
 - Imports React and ReactDOM
 - Imports global styles (index.css)
-- Renders the `<App />` component into the root element
+- Sets up React Query with `QueryClient` for server state management
+- Wraps the `<App />` component with `QueryClientProvider`
+- Renders the application into the root element with React.StrictMode
 
-This file is executed first when the application starts.
+This file is executed first when the application starts and initializes all global providers.
 
 #### `App.tsx`
 Main React component that serves as the root of the application. Contains the primary structure and layout of the graph builder application.
@@ -153,6 +155,96 @@ Component-specific styles for the App component. Contains styling rules isolated
 #### `assets/` Directory
 Contains static assets such as images, icons, and other media files used throughout the application.
 
+### Store Files (`src/store/` Directory)
+
+#### `useAppStore.ts`
+Zustand-based state management store that manages global application state. This is the single source of truth for app-wide state that needs to persist across component re-renders.
+
+**State Properties:**
+- `selectedAppId` - Currently selected application identifier
+- `selectedNodeId` - Currently selected node in the graph
+- `isMobilePanelOpen` - Toggle state for mobile inspector panel
+- `activeInspectorTab` - Active tab in the inspector panel (Config or Runtime)
+- `appGraphs` - Dictionary storing graphs for each application with their nodes and edges
+
+**Store Methods:**
+- `setSelectedAppId(id)` - Updates the selected app and resets node selection
+- `setSelectedNodeId(id)` - Updates the selected node and auto-opens the mobile panel
+- `setIsMobilePanelOpen(open)` - Controls the visibility of the mobile inspector panel
+- `setActiveInspectorTab(tab)` - Switches between inspector tabs
+- `setGraphData(appId, nodes, edges)` - Stores graph data for an application
+- `updateNodeData(appId, nodeId, fields)` - Updates specific node properties
+- `deleteNode(appId, nodeId)` - Removes a node and its connected edges from the graph
+
+### API & Mock Data (`src/api/` Directory)
+
+#### `mockApi.ts`
+Provides mock API endpoints and React Query hooks for data fetching. Simulates server responses with realistic delays for demonstration and development purposes.
+
+**Mock Data:**
+- `MOCK_APPS` - Array of predefined applications with IDs, names, and icons
+- `INITIAL_GRAPHS` - Pre-populated graph data with nodes (Postgres, Redis, MongoDB) and edges showing service connections
+
+**React Query Hooks:**
+- `useAppsQuery()` - Fetches the list of available applications (500ms delay)
+- `useGraphQuery(appId)` - Fetches and caches graph data for a specific application (600ms delay)
+  - Automatically syncs fetched data into Zustand store
+  - Only fetches if data not already cached
+  - Enabled only when appId is provided
+
+**Mock Node Properties:**
+- `label` - Service name
+- `status` - Health status (Success, Error, Degraded)
+- `cost` - Hourly cost in dollars
+- `metricType` - Performance metric being tracked (CPU, Memory, Disk, Region)
+- `metricValue` - Current metric percentage (0-100)
+
+### Component Files (`src/components/` Directory)
+
+#### `CustomServiceNode.tsx`
+Custom React Flow node component for rendering service/database nodes in the graph visualization.
+
+**Features:**
+- Displays service information with icon and label
+- Shows hourly cost in a compact badge
+- Interactive metric selector tabs (CPU, Memory, Disk, Region)
+- Visual metric usage bar with gradient coloring (blue → green → red)
+- Status badge with appropriate color coding:
+  - `Success` - Green (emerald)
+  - `Degraded` - Amber (yellow)
+  - `Error` - Red (rose)
+- Source and target handles for connecting edges
+- Responsive selection highlighting with indigo border and ring effect
+- Cloud provider badge (AWS)
+
+**Styling:**
+- Dark background (`#0d0d0e`)
+- 320px width with rounded corners
+- Uses Tailwind CSS for all styling
+- Integrates with Zustand store for state updates
+
+#### `InspectorPanel.tsx`
+Side panel component for inspecting and editing properties of selected nodes in the graph.
+
+**Features:**
+- Displays selected node information or empty state message
+- Tabbed interface:
+  - **Config Tab**: Edit node properties (status, name, usage metrics)
+  - **Runtime Tab**: View node metadata (ID, position coordinates)
+  
+**Config Tab Controls:**
+- Status selector - Choose between Success, Degraded, and Error states
+- Node name input - Edit the service node label
+- Usage metric slider - Visual slider to adjust performance metrics
+- Numeric input - Precise metric value input with min/max validation (0-100)
+
+**Responsive Design:**
+- Full-height panel with scrollable content area
+- Top header with close button for mobile devices
+- Mobile-specific close button using `lg:hidden`
+- Integrates with Zustand store for data persistence
+- Auto-opens on mobile when a node is selected
+
 ### Public Directory
 
 #### `public/`
@@ -173,6 +265,57 @@ This project uses **Tailwind CSS** for utility-first styling with a custom dark 
 2. **Component styles**: Edit `src/App.css` for App component-specific styles
 3. **Tailwind config**: Modify `tailwind.config.js` to customize theme colors, fonts, and utilities
 4. **Tailwind classes**: Use utility classes directly in JSX elements following Tailwind conventions
+
+## Key Dependencies & Libraries
+
+### State Management
+
+**Zustand** - Lightweight state management library used for:
+- Managing application state (`useAppStore`)
+- Persisting selected app/node information
+- Storing graph data for multiple applications
+- Simple, hook-based API for subscribing to state changes
+
+**React Query (@tanstack/react-query)** - Server state management for:
+- Caching API responses
+- Managing loading and error states
+- Automatic data synchronization
+- Lazy-loading graph data on demand
+
+### Graph Visualization
+
+**React Flow (@xyflow/react)** - Interactive graph visualization library for:
+- Rendering nodes and edges
+- Handling drag-and-drop interactions
+- Pan and zoom functionality
+- Custom node types support (CustomServiceNode)
+
+### Styling
+
+**Tailwind CSS** - Utility-first CSS framework for:
+- Rapid UI development
+- Consistent dark theme implementation
+- Responsive design
+- Pre-defined color and spacing scales
+
+## Architecture Overview
+
+### Data Flow
+
+1. **User Selects App** → Updates `selectedAppId` in Zustand store
+2. **Graph Data Fetch** → React Query fetches and caches data
+3. **Store Sync** → Data automatically syncs to Zustand store
+4. **Render Graph** → React Flow renders nodes from store
+5. **User Selects Node** → Updates `selectedNodeId` in Zustand store
+6. **Inspector Panel** → Displays node data from store
+7. **Edit Node** → Updates node via `updateNodeData` in store
+8. **Re-render** → Components automatically update from store
+
+### State Management Strategy
+
+- **Global State (Zustand)**: Selected app, selected node, UI state (panel visibility, active tabs)
+- **Server State (React Query)**: API responses and cached data
+- **Component Local State**: Form inputs, temporary UI state
 
 ## Available Scripts
 
