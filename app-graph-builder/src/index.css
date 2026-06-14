@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base{
+  body{
+    @apply bg-[#09090b] text-white antialised overflow-hidden;
+  }
+}
+
+/* ReactFlow dark mode tooltip */
+.react-flow__handle{
+  border:1px solid #27272a;
+}
