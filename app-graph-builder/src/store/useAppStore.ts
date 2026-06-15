@@ -1,6 +1,24 @@
 import { create } from "zustand";
 import type { Node, Edge } from "@xyflow/react";
 
+export interface ServiceNodeData extends Record<string,unknown>{
+    label:string;
+    status:'Success' | 'Degraded' | 'Error';
+    cost:number;
+    metricType:'CPU' | 'Memory' | 'Disk' | 'Region' | string;
+    metricValue:number;
+    description?:string;
+}
+
+export interface DbNodeData extends Record<string,unknown>{
+    label:string;
+    status:'Success' | 'Degraded' | 'Error';
+    cost:number;
+    metricType:'Usage' | 'Storage' | 'IOPs' | 'Replicas' | string;
+    metricValue:number;
+    description?:string;
+}
+
 interface AppState{
     selectedAppId:string | null;
     selectedNodeId:string | null;
@@ -13,7 +31,7 @@ interface AppState{
     setIsMobilePanelOpen:(open:boolean)=>void;
     setActiveInspectorTab:(tab:string)=>void;
     setGraphData:(appId:string,nodes:Node[],edges:Edge[])=>void;
-    updateNodeData:(appId:string,nodeId:string,fields:Record<string,any>)=>void;
+    updateNodeData:(appId:string,nodeId:string,fields:Partial<ServiceNodeData & DbNodeData>)=>void;
     deleteNode:(appId:string,nodeId:string)=>void;
 }
 
